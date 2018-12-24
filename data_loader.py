@@ -25,7 +25,7 @@ class ImagerLoader(data.Dataset):
     def __init__(self, img_path, transform=None, target_transform=None,
                  loader=default_loader, square=False, data_path=None, partition=None, sem_reg=None):
 
-        if data_path == None:
+        if data_path is None:
             raise Exception('No data path specified.')
 
         if partition is None:
@@ -148,3 +148,32 @@ class ImagerLoader(data.Dataset):
 
     def __len__(self):
         return len(self.ids)
+
+
+class JustImagerLoader(data.Dataset):
+    def __init__(self, img_path, transform=None,
+                 loader=default_loader, square=False, data_path=None):
+
+        if data_path is None:
+            raise Exception('No data path specified.')
+
+        self.square = square
+        self.img_path = img_path
+
+        self.transform = transform
+        self.loader = loader
+
+    def __getitem__(self, index):
+
+        # load image
+        img = self.loader(self.img_path)
+
+        if self.square:
+            img = img.resize(self.square)
+        if self.transform is not None:
+            img = self.transform(img)
+
+        return img
+
+    def __len__(self):
+        return 1
