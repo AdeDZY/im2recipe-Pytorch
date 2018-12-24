@@ -15,6 +15,7 @@ parser = get_parser()
 opts = parser.parse_args()
 # # =============================================================================
 
+
 class TableModule(nn.Module):
     def __init__(self):
         super(TableModule, self).__init__()
@@ -23,8 +24,10 @@ class TableModule(nn.Module):
         y = torch.cat(x, dim)
         return y
 
+
 def norm(input, p=2, dim=1, eps=1e-12):
     return input / input.norm(p,dim).clamp(min=eps).expand_as(input)
+
 
 # Skip-thoughts LSTM
 class stRNN(nn.Module):
@@ -57,6 +60,7 @@ class stRNN(nn.Module):
         output = output.view(output.size(0),output.size(1)*output.size(2))
 
         return output 
+
 
 class ingRNN(nn.Module):
     def __init__(self):
@@ -94,6 +98,7 @@ class ingRNN(nn.Module):
 
         return output
 
+
 # Im2recipe model
 class im2recipe(nn.Module):
     def __init__(self):
@@ -117,25 +122,35 @@ class im2recipe(nn.Module):
         else:
             raise Exception('Only resNet50 model is implemented.') 
 
-        self.stRNN_     = stRNN()
-        self.ingRNN_    = ingRNN()
-        self.table      = TableModule()
+        self.stRNN_ = stRNN()
+        self.ingRNN_ = ingRNN()
+        self.table = TableModule()
  
         if opts.semantic_reg:
             self.semantic_branch = nn.Linear(opts.embDim, opts.numClasses)
 
-    def forward(self, x, y1, y2, z1, z2): # we need to check how the input is going to be provided to the model
-        # recipe embedding
-        recipe_emb = self.table([self.stRNN_(y1,y2), self.ingRNN_(z1,z2) ],1) # joining on the last dim 
-        recipe_emb = self.recipe_embedding(recipe_emb)
-        recipe_emb = norm(recipe_emb)
+    def forward(self, x, y1=None, y2=None, z1=None, z2=None):
+        # we need to check how the input is going to be provided to the model
 
         # visual embedding
         visual_emb = self.visionMLP(x)
         visual_emb = visual_emb.view(visual_emb.size(0), -1).cpu()
         visual_emb = self.visual_embedding(visual_emb)
         visual_emb = norm(visual_emb)
-        
+
+        if opts.semantic_reg:
+            visual_sem = self.semantic_branch(visual_emb)
+        else:
+            visual_sem = None
+
+        if y1 is None or y2 is None or z1 is None or z2 is None:
+            return [visual_emb, visual_sem]
+
+        # recipe embedding
+        recipe_emb = self.table([self.stRNN_(y1, y2), self.ingRNN_(z1,z2) ], 1)  # joining on the last dim
+        recipe_emb = self.recipe_embedding(recipe_emb)
+        recipe_emb = norm(recipe_emb)
+
         if opts.semantic_reg:            
             visual_sem = self.semantic_branch(visual_emb)
             recipe_sem = self.semantic_branch(recipe_emb)
