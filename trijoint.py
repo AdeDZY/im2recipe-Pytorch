@@ -24,7 +24,7 @@ class TableModule(nn.Module):
         return y
 
 def norm(input, p=2, dim=1, eps=1e-12):
-    return input / input.norm(p,dim,keepdim=True).clamp(min=eps).expand_as(input)
+    return input / input.norm(p,dim).clamp(min=eps).expand_as(input)
 
 # Skip-thoughts LSTM
 class stRNN(nn.Module):
@@ -132,7 +132,7 @@ class im2recipe(nn.Module):
 
         # visual embedding
         visual_emb = self.visionMLP(x)
-        visual_emb = visual_emb.view(visual_emb.size(0), -1)
+        visual_emb = visual_emb.view(visual_emb.size(0), -1).cpu()
         visual_emb = self.visual_embedding(visual_emb)
         visual_emb = norm(visual_emb)
         

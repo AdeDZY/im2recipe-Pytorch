@@ -34,8 +34,8 @@ N = opts.medr
 idxs = range(N)
 
 glob_rank = []
-glob_recall = {1:0.0,5:0.0,10:0.0}
-for i in range(10):
+glob_recall = {1:0.0,5:0.0,10:0.0, 100:0.0}
+for i in range(1):
 
     ids = random.sample(xrange(0,len(names)), N)
     im_sub = im_vecs[ids,:]
@@ -49,7 +49,7 @@ for i in range(10):
         sims = np.dot(instr_sub,im_sub.T) # for recipe2im
 
     med_rank = []
-    recall = {1:0.0,5:0.0,10:0.0}
+    recall = {1:0.0,5:0.0,10:0.0,100:0.0}
 
     for ii in idxs:
 
@@ -69,6 +69,8 @@ for i in range(10):
             recall[5]+=1
         if (pos+1)<=10:
             recall[10]+=1
+        if (pos+1)<=100:
+            recall[100]+=1
 
         # store the position
         med_rank.append(pos+1)
@@ -84,6 +86,6 @@ for i in range(10):
     glob_rank.append(med)
 
 for i in glob_recall.keys():
-    glob_recall[i] = glob_recall[i]/10
+    glob_recall[i] = glob_recall[i]/1
 print "Mean median", np.average(glob_rank)
 print "Recall", glob_recall

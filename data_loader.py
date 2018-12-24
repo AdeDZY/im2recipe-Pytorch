@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import torch.utils.data as data
 from PIL import Image
 import os
@@ -12,9 +13,11 @@ import torch
 def default_loader(path):
     try:
         im = Image.open(path).convert('RGB')
+        print("load ", path)
         return im
     except:
-        print(..., file=sys.stderr)
+        print(path)
+        print("err", file=sys.stderr)
         return Image.new('RGB', (224, 224), 'white')
 
 

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import time
 import torch
 import torch.nn as nn
@@ -28,7 +30,7 @@ np.random.seed(opts.seed)
 def main():
    
     model = im2recipe()
-    model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=[0,1,2,3])
+    model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=[0])
     # model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=[0,1])
     if not opts.no_cuda:
         model.cuda()
@@ -74,7 +76,7 @@ def main():
         ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='test'),
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=(not opts.no_cuda))
-    print 'Test loader prepared.'
+    print('Test loader prepared.')
 
     # run test
     test(test_loader, model, criterion)
@@ -94,11 +96,12 @@ def test(test_loader, model, criterion):
         input_var = list() 
         for j in range(len(input)):
             v = torch.autograd.Variable(input[j], volatile=True)
+            input_var.append(v.cuda() if not opts.no_cuda else v.cpu())
         target_var = list()
         for j in range(len(target)-2): # we do not consider the last two objects of the list
             target[j] = target[j]
             v = torch.autograd.Variable(target[j], volatile=True)
-            target_var.append(v.cuda() if not opts.no_cuda else v)
+            target_var.append(v.cuda() if not opts.no_cuda else v.cpu())
 
         # compute output
         output = model(input_var[0],input_var[1], input_var[2], input_var[3], input_var[4])
