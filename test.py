@@ -73,7 +73,8 @@ def main():
             transforms.CenterCrop(224), # we get only the center of that rescaled
             transforms.ToTensor(),
             normalize,
-        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='test'),
+        ]), data_path=opts.data_path, sem_reg=opts.semantic_reg, partition='test'),
+
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=(not opts.no_cuda))
     print('Test loader prepared.')
