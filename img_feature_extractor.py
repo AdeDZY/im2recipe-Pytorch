@@ -68,7 +68,7 @@ def test(img_loader, model):
     model.eval()
 
     for i, img in enumerate(img_loader):
-        img = torch.autograd.Variable(input[0], volatile=True)
+        img = torch.autograd.Variable(img, volatile=True)
         img = img.cuda() if not opts.no_cuda else img.cpu()
 
         # compute output

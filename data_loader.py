@@ -16,8 +16,6 @@ def default_loader(path):
         print("load ", path)
         return im
     except:
-        print(path)
-        print("err", file=sys.stderr)
         return Image.new('RGB', (224, 224), 'white')
 
 
