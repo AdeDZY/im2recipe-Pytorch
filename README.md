@@ -1,3 +1,6 @@
+# From Zhuyun
+1. The pre-trained model must be load with CUDA (need GPU)
+
 # im2recipe: Learning Cross-modal Embeddings for Cooking Recipes and Food Images
 
 This repository contains the code to train and evaluate models from the paper:  
